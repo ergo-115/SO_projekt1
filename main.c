@@ -1,3 +1,5 @@
+
+
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <stdlib.h>
@@ -6,6 +8,11 @@
 #include <unistd.h>
 #include<linux/fs.h>
 #include <errno.h>
+#include<stdbool.h>
+#include <syslog.h>
+#include<string.h>
+#include<time.h>
+#include <ctype.h>
 
 
 /*Programik otrzymuje co najmniej 2 argumenty, ścieżkę źródłową oraz ścieżkę docelową .
@@ -15,8 +22,10 @@
 //-R czy odpalamy rekurencyjnie, czyli czy patrzymy też w podkatalogi
 //-S size (gdzie size to próg dzielący male pliki od dużych)
 
+
 int main (int argc,char *argv[])
 {
+    helloWorld();
     if(argc<3)
     {
         errno=-1;
@@ -24,21 +33,119 @@ int main (int argc,char *argv[])
         return -1;
     }
 
+
+    //otwieramy dostęp do logu systemowego, będziemy tam zapisywać informacje
+    openlog("Demon Synchronizuący Katalogi", 0, LOG_USER);
+
+
     //przypisuję do zmiennej sourcePath pierwszy argument który jest ścieżką źródłową
     //a do zmiennej destinationPath drugi argument programu, który jest ścieżką docelową
-    char sourcePath[]=argv[1], destinationPath=argv[2];
 
     //otrzymaliśmy tylko 2 argumenty - ścieżkę źródłową i ścieżkę docelową
-    if(argc==3)
-    {
+    char *sourcePath, *destinationPath;
+    memcpy(sourcePath,argv[1],strlen(argv[1]));
+    memcpy(destinationPath,argv[2],strlen(argv[2]));
+    //recursive mode równa się true, jeśli podamy mu taki argument
+    //wtedy program działa rekurencyjnie
 
+    bool recursiveMode = false;
+
+    //differenceSize służy do określenia różnicy między małymi a dużymi plikami
+    int differenceSize = 0;
+
+    int timeDelay=0;
+
+    
+    for(int i=3;i<=argc;i++)
+    {
+        //mamy parametr mówiący że lecimy rekurencyjnie xD
+        if( strcmp(argv[i],"-R") == 0 || strcmp(argv[i],"-r") == 0)
+        {
+            if(recursiveMode == true)
+            {
+                printf("Podano ponownie ten sam argument");
+                errno=-1;
+                return-1;
+            }
+            recursiveMode = true;
+        }
+        else if( strcmp(argv[i],"-S")==0 || strcmp(argv[i],"-s")==0)
+        {
+            //ktoś mógł nie podać rozmiaru tego, ale podał to jako parametr, przerywamy
+            if(argc == i)
+            {
+                printf("Podano argument -R ale nie podano rozmiaru");
+                errno=-1;
+                return-1;
+            }
+            if(differenceSize != 0)
+            {
+                printf("Podano ponownie ten sam argument");
+                errno=-1;
+                return-1;
+            }
+
+            char *size;
+            memcpy(size,argv[i+1],strlen(argv[i+1]));
+
+            //we have to check if size is a intiger number
+            for(int j = 0;j<strlen(size);j++)
+            {
+                //0 na początku to nie liczba
+                if(size[0] == 0)
+                {
+                    printf("Podana wielkość nie jest liczbą!");
+                    errno=-1;
+                    return-1;
+                }
+                else if(!isdigit(size[j]))
+                {
+                    printf("Podana wielkość nie jest liczbą!");
+                    errno=-1;
+                    return-1;
+                }
+            }
+            differenceSize = atoi(size);
+        }
+        else if(argv[i] == "-t" || argv[i] == "-T")
+        {
+            if(i==argc)
+            {
+                printf("Podane argument -t ale nie podano czasu");
+                errno=-1;
+                return -1;
+            }
+            char *time;
+            memcpy(time,argv[i+1],strlen(argv[i+1]));
+
+
+            for(int j = 0;j<strlen(time);j++)
+            {
+                if(time[0]==0)
+                {
+                    printf("Podana wielkość nie jest liczbą!");
+                    errno=-1;
+                    return-1;
+                }
+                else if(!isdigit(time[j]))
+                {
+                    printf("Podana wielkość nie jest liczbą!");
+                    errno=-1;
+                    return-1;
+                }
+            }
+            timeDelay = atoi(time);
+
+        }
     }
 
-    //orzymaliśmy ścieżkę źródłową oraz ścieżkę docelową oraz parametr -R, mówiący że ma wszystko nastąpić reurencyjnie
-    else if(argc==4)
+    //jeśli nie zmieniono czasu oczekiwania
+    if(timeDelay==0)
     {
-
+        timeDelay = 5000;
     }
+
+    
 
     //zamieniamy program w demona
 
@@ -82,8 +189,7 @@ int main (int argc,char *argv[])
 
     /*Program nasz stał się demonem, można tutaj wykonać jego czynności, poniżej należy wykonać czynności demona... */
 
-    //demon śpi przez 5 minut, a w delay() podajemy w argumencie milisekundy
-    delay(1000*60*5);
+    sleep(timeDelay);
 
     return 0;
 }
