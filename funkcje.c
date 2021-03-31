@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "funkcje.h"
 
 //czy sciezka podana do target jest podkatalogiem source (czyli np.
 // src = /home/....../projekt/abc i target = /home/...../projekt zwroci 1(true), inaczej 0

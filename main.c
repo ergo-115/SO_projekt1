@@ -13,7 +13,8 @@
 #include<string.h>
 #include<time.h>
 #include <ctype.h>
-
+#include "inicjalizacja.h"
+#include"struktury.c"
 
 /*Programik otrzymuje co najmniej 2 argumenty, ścieżkę źródłową oraz ścieżkę docelową .
  Jeżeli któraś ze ścieżek nie jest katalogiem program powraca natychmiast z komunikatem błędu.*/
@@ -23,15 +24,19 @@
 //-S size (gdzie size to próg dzielący male pliki od dużych)
 
 
+
 int main (int argc,char *argv[])
 {
-    helloWorld();
-    if(argc<3)
+    if(Walidacja(argc,argv) == false)
     {
-        errno=-1;
-        printf("Zbyt mała liczba argumentów!");
         return -1;
     }
+
+    //config zawiera wszystko co jest potrzebne w pracy Demona(ścieżka docelowa, źródłowa, czas czekania)
+    //czy praca rekurencyjna itd.
+    Data config;
+
+    //config=GetStartData(argc,argv);
 
 
     //otwieramy dostęp do logu systemowego, będziemy tam zapisywać informacje
@@ -58,7 +63,6 @@ int main (int argc,char *argv[])
     
     for(int i=3;i<=argc;i++)
     {
-        //mamy parametr mówiący że lecimy rekurencyjnie xD
         if( strcmp(argv[i],"-R") == 0 || strcmp(argv[i],"-r") == 0)
         {
             if(recursiveMode == true)
