@@ -1,20 +1,8 @@
-
-
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include<linux/fs.h>
-#include <errno.h>
-#include<stdbool.h>
-#include <syslog.h>
-#include<string.h>
-#include<time.h>
-#include <ctype.h>
-#include "inicjalizacja.h"
-#include"struktury.c"
+#include "data.h"
+#include "funkcje.h"
+#include "init.h"
+//#include "data.h"
+//struct Data config;
 
 /*Programik otrzymuje co najmniej 2 argumenty, ścieżkę źródłową oraz ścieżkę docelową .
  Jeżeli któraś ze ścieżek nie jest katalogiem program powraca natychmiast z komunikatem błędu.*/
@@ -27,16 +15,16 @@
 
 int main (int argc,char *argv[])
 {
-    if(Walidacja(argc,argv) == false)
+    if(walidacja(argc,argv) == false)
     {
         return -1;
     }
 
     //config zawiera wszystko co jest potrzebne w pracy Demona(ścieżka docelowa, źródłowa, czas czekania)
     //czy praca rekurencyjna itd.
-    Data config;
+    struct Data config;
 
-    //config=GetStartData(argc,argv);
+    config=GetStartData(argc,argv);
 
 
     //otwieramy dostęp do logu systemowego, będziemy tam zapisywać informacje

@@ -1,8 +1,4 @@
-#include <libgen.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include <string.h>
-#include "funkcje.h"
+#include "data.h"
 
 //czy sciezka podana do target jest podkatalogiem source (czyli np.
 // src = /home/....../projekt/abc i target = /home/...../projekt zwroci 1(true), inaczej 0
@@ -46,3 +42,18 @@ bool isSourceSubDirOfTarget(const char* source,const char* target){
 
 //zawsze mozna pozbyc sie biblioteki stdbool gdyby zrobic cos w stylu 'int isSource... return 1 else return 0', ale ostatecznie na jedno wychodzi bo te wartosci system sam zamienia na typ int
 //deklaracja w main w stylu bool isSourceSubDirOfTarget(const char* source,const char* target);
+
+
+//czy cos pod sciezka istnieje i czy jest to katalog, do wywolania na poczatku
+bool isDirectoryAndExists(const char* path){
+	struct stat statt;
+	stat(path, &statt);
+	if(S_ISDIR(statt.st_mode))
+		return true;
+	
+	return false;
+}
+
+
+
+
