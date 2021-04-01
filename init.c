@@ -1,16 +1,9 @@
-#include <libgen.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include <string.h>
-#include <errno.h>
-#include<stdio.h>
-#include <ctype.h>
+#include "data.h"
 #include "funkcje.h"
-#include "inicjalizacja.h"
-#include "struktury.c"
+
 
 /*Tutaj nastąpi walidacja danych, jeśli przejdzie zwracamy true, jeśli nie to false i kończymy działanie programu*/ 
-bool Walidacja(int argc,char *argv[])
+bool walidacja(int argc,char *argv[])
 {
     if(argc<3)
     {
@@ -94,15 +87,15 @@ bool Walidacja(int argc,char *argv[])
 }
 
 //miałek taką wizję by ta metoda zwróciła nam dane startowe
-Data GetStartData(int argc,char *argv[])
+struct Data GetStartData(int argc,char *argv[])
 {
-    Data data;
+    struct Data data;
 
 
 
 
 
-    return (Data)data;
+    return data;
 }
 
 
