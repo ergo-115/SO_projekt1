@@ -40,18 +40,41 @@ bool isSourceSubDirOfTarget(const char* source,const char* target){
 	return false;
 }
 
-//zawsze mozna pozbyc sie biblioteki stdbool gdyby zrobic cos w stylu 'int isSource... return 1 else return 0', ale ostatecznie na jedno wychodzi bo te wartosci system sam zamienia na typ int
-//deklaracja w main w stylu bool isSourceSubDirOfTarget(const char* source,const char* target);
-
-
 //czy cos pod sciezka istnieje i czy jest to katalog, do wywolania na poczatku
 bool isDirectoryAndExists(const char* path){
+	//char buffer[1024];
+	char *absPath = NULL;
+	//te realpath z wartoscia NULL tworzy bufor, dlatego pozniej jest free()
+	absPath = realpath(path, NULL);
+	if(!absPath){
+		//printf("sciezka nie istnieje");
+		free(absPath);
+		return false;
+	}
+
+	
+	//wywali się tzn false, jeśli będzie coś w stylu /home/...../abc/ zamiast /home/..../abc
+	if(strcmp(absPath, path) != 0) {
+		free(absPath);
+		return false;
+	}
+	free(absPath);
+	
+	//sprawdzenie praw do execute, jesli brak to errno bedzie na eacces
+	//co ciekawe, dziala tylko dla folderow, i zwykle pliki automatycznie maja ustawiane errno na eacces
+	//wiec te 4 linijki "pod czy jest katalogiem" można chyba by skasować, poki co zostawiam
+	int perms = 0;
+	perms = access(path, X_OK);
+	if(errno == EACCES)
+		return false;
+
+	//czy jest katalogiem
 	struct stat statt;
 	stat(path, &statt);
-	if(S_ISDIR(statt.st_mode))
-		return true;
+	if(!(S_ISDIR(statt.st_mode)))
+		return false;
 	
-	return false;
+	return true;
 }
 
 
