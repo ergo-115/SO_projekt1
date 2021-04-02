@@ -11,17 +11,37 @@ bool walidacja(int argc,char *argv[])
         printf("Zbyt mała liczba argumentów!");
         return false;
     }
+    if(isDirectoryAndExists(argv[1]) == false || isDirectoryAndExists(argv[2]) == false)
+    {
+        errno=-1;
+        printf("Podane argumenty nie pasują do żadnej ścieżki");
+        return false;
+    }
     if(isTargetSubDirOfSrc(argv[1],argv[2]) == true || isSourceSubDirOfTarget(argv[1],argv[2]) == true)
     {
         errno=-1;
         printf("Jeden katalog jest podkatalogiem drugiego!");
         return false;
     }
-    for(int i=3;i<=argc;i++)
+
+    //jeśli argumenty to tylko nazwa ścieżek, to zwracamy true
+    if(argc == 3)
     {
-        
+        return true;
+    }
+
+    for(int i=4;i<=argc;i++)
+    {
+        int length = strlen(argv[i]+1);
+        char s;
+        s=malloc(length);
+        memcpy(s,argv[i],length);
+        printf("%s",s);
+        return false;
         if( strcmp(argv[i],"-S")==0 || strcmp(argv[i],"-s")==0)
         {
+            printf("wchodzę tutaj");
+            return false;
             //ktoś mógł nie podać rozmiaru tego, ale podał to jako parametr, przerywamy
             if(argc == i)
             {

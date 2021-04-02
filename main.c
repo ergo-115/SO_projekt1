@@ -19,7 +19,7 @@ int main (int argc,char *argv[])
     {
         return -1;
     }
-
+    return 0;
     //config zawiera wszystko co jest potrzebne w pracy Demona(ścieżka docelowa, źródłowa, czas czekania)
     //czy praca rekurencyjna itd.
     struct Data config;
