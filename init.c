@@ -3,32 +3,41 @@
 
 
 /*Tutaj nastąpi walidacja danych, jeśli przejdzie zwracamy true, jeśli nie to false i kończymy działanie programu*/ 
-bool walidacja(int argc,char *argv[])
+struct Data WalidacjaDane(int argc,char *argv[])
 {
-
+    struct Data data;
+    data.sourcePath = argv[1];
+    data.destinationPath = argv[2];
+    data.size=0;
+    data.timeDelay=5000;
+    data.RecursiveMode=false;
+    data.walidacja = true;
     if(argc<3)
     {
         errno=-1;
-        printf("Zbyt mała liczba argumentów!");
-        return false;
+        printf("Zbyt mała liczba argumentów!\n");
+        data.walidacja = false;
+        return data;
     }
     if(isDirectoryAndExists(argv[1]) == false || isDirectoryAndExists(argv[2]) == false)
     {
         errno=-1;
-        printf("Podane argumenty nie pasują do żadnej ścieżki");
-        return false;
+        printf("Podane argumenty nie pasują do żadnej ścieżki\n");
+        data.walidacja = false;
+        return data;
     }
     if(isTargetSubDirOfSrc(argv[1],argv[2]) == true || isSourceSubDirOfTarget(argv[1],argv[2]) == true)
     {
         errno=-1;
-        printf("Jeden katalog jest podkatalogiem drugiego!");
-        return false;
+        printf("Jeden katalog jest podkatalogiem drugiego!\n");
+        data.walidacja = false;
+        return data;
     }
 
     //jeśli argumenty to tylko nazwa ścieżek, to zwracamy true
     if(argc == 3)
     {
-        return true;
+        return data;
     }
     
     for(int i=3;i<argc;i++)
@@ -40,17 +49,19 @@ bool walidacja(int argc,char *argv[])
             //ktoś mógł nie podać rozmiaru tego, ale podał to jako parametr, przerywamy
             if(argc-1 == i)
             {
-                printf("Podano argument -S ale nie podano rozmiaru");
+                printf("Podano argument -S ale nie podano rozmiaru\n");
                 errno=-1;
-                return false;
+                data.walidacja = false;
+                return data;
             }
             
             //0 na początku to nie liczba
                 if(argv[i][0] == '0')
                 {
-                    printf("Podana wielkość przy parametrze -S nie jest liczbą!");
+                    printf("Podana wielkość przy parametrze -S nie jest liczbą!\n");
                     errno=-1;
-                    return false;
+                    data.walidacja = false;
+                    return data;
                 }
 
             //we have to check if size is a intiger number
@@ -58,12 +69,18 @@ bool walidacja(int argc,char *argv[])
                 int liczba = atoi(argv[i+1]);
                 if(lenHelper(liczba) != strlen(argv[i+1]))
                 {
-                    printf("Podana wielkość przy parametrze -S nie jest liczbą!");
+                    printf("Podana wielkość przy parametrze -S nie jest liczbą!\n");
                     errno=-1;
-                    return false;
+                    data.walidacja = false;
+                    return data;
                 }
+                data.size = liczba;
             
             i++;
+        }
+        else if(strcmp(argv[i],"-r") == 0 || strcmp(argv[i],"-R") == 0)
+        {
+            data.RecursiveMode = true;
         }
         else if(strcmp(argv[i], "-t")==0 || strcmp(argv[i] , "-T")==0)
         {
@@ -71,17 +88,19 @@ bool walidacja(int argc,char *argv[])
 //ktoś mógł nie podać rozmiaru tego, ale podał to jako parametr, przerywamy
             if(argc-1 == i)
             {
-                printf("Podano argument -T ale nie podano rozmiaru");
+                printf("Podano argument -T ale nie podano rozmiaru\n");
                 errno=-1;
-                return false;
+                data.walidacja = false;
+                return data;
             }
             
             //0 na początku to nie liczba
                 if(argv[i][0] == '0')
                 {
-                    printf("Podana wielkość przy parametrze -T nie jest liczbą!");
+                    printf("Podana wielkość przy parametrze -T nie jest liczbą!\n");
                     errno=-1;
-                    return false;
+                    data.walidacja = false;
+                    return data;
                 }
 
             //we have to check if size is a intiger number
@@ -89,27 +108,16 @@ bool walidacja(int argc,char *argv[])
                 int liczba = atoi(argv[i+1]);
                 if(lenHelper(liczba) != strlen(argv[i+1]))
                 {
-                    printf("Podana wielkość przy parametrze -T nie jest liczbą!");
+                    printf("Podana wielkość przy parametrze -T nie jest liczbą!\n");
                     errno=-1;
-                    return false;
+                    data.walidacja = false;
+                    return data;
                 }
-            
+            data.timeDelay = liczba;
             i++;
         }
         
     }
-    return true;
-}
-
-//miałek taką wizję by ta metoda zwróciła nam dane startowe
-struct Data GetStartData(int argc,char *argv[])
-{
-    struct Data data;
-
-
-
-
-
     return data;
 }
 

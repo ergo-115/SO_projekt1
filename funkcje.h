@@ -5,5 +5,6 @@
 bool isTargetSubDirOfSrc(const char* source,const char* target);
 bool isSourceSubDirOfTarget(const char* source,const char* target);
 bool isDirectoryAndExists(const char* path);
+int lenHelper(unsigned x);
 
 #endif 

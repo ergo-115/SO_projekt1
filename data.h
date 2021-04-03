@@ -19,10 +19,12 @@
 
  typedef struct Data
 {
-    bool ResursiveMode;
+    bool RecursiveMode;
+    bool walidacja;
     int timeDelay;
     char *sourcePath;
     char *destinationPath;
+    int size;
 } data;
 
 #endif
