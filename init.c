@@ -5,6 +5,7 @@
 /*Tutaj nastąpi walidacja danych, jeśli przejdzie zwracamy true, jeśli nie to false i kończymy działanie programu*/ 
 bool walidacja(int argc,char *argv[])
 {
+
     if(argc<3)
     {
         errno=-1;
@@ -29,79 +30,73 @@ bool walidacja(int argc,char *argv[])
     {
         return true;
     }
-
-    for(int i=4;i<=argc;i++)
+    
+    for(int i=3;i<argc;i++)
     {
-        int length = strlen(argv[i]+1);
-        char s;
-        s=malloc(length);
-        memcpy(s,argv[i],length);
-        printf("%s",s);
-        return false;
+        
         if( strcmp(argv[i],"-S")==0 || strcmp(argv[i],"-s")==0)
         {
-            printf("wchodzę tutaj");
-            return false;
+            
             //ktoś mógł nie podać rozmiaru tego, ale podał to jako parametr, przerywamy
-            if(argc == i)
+            if(argc-1 == i)
             {
-                printf("Podano argument -R ale nie podano rozmiaru");
+                printf("Podano argument -S ale nie podano rozmiaru");
                 errno=-1;
                 return false;
             }
-
-            char *size;
-            memcpy(size,argv[i+1],strlen(argv[i+1]));
+            
+            //0 na początku to nie liczba
+                if(argv[i][0] == '0')
+                {
+                    printf("Podana wielkość przy parametrze -S nie jest liczbą!");
+                    errno=-1;
+                    return false;
+                }
 
             //we have to check if size is a intiger number
-            for(int j = 0;j<strlen(size);j++)
-            {
-                //0 na początku to nie liczba
-                if(size[0] == 0)
+            
+                int liczba = atoi(argv[i+1]);
+                if(lenHelper(liczba) != strlen(argv[i+1]))
                 {
-                    printf("Podana wielkość nie jest liczbą!");
+                    printf("Podana wielkość przy parametrze -S nie jest liczbą!");
                     errno=-1;
                     return false;
                 }
-                else if(!isdigit(size[j]))
-                {
-                    printf("Podana wielkość nie jest liczbą!");
-                    errno=-1;
-                    return false;
-                }
-            }
+            
             i++;
         }
-        else if(argv[i] == "-t" || argv[i] == "-T")
+        else if(strcmp(argv[i], "-t")==0 || strcmp(argv[i] , "-T")==0)
         {
-            if(i==argc)
+            
+//ktoś mógł nie podać rozmiaru tego, ale podał to jako parametr, przerywamy
+            if(argc-1 == i)
             {
-                printf("Podane argument -t ale nie podano czasu");
+                printf("Podano argument -T ale nie podano rozmiaru");
                 errno=-1;
                 return false;
             }
-
-            char *time;
-            //trzeba to skopiować w ten sposób
-            memcpy(time,argv[i+1],strlen(argv[i+1]));
-
-            for(int j = 0;j<strlen(time);j++)
-            {
-                if(time[0]==0)
+            
+            //0 na początku to nie liczba
+                if(argv[i][0] == '0')
                 {
-                    printf("Podana wielkość nie jest liczbą!");
+                    printf("Podana wielkość przy parametrze -T nie jest liczbą!");
                     errno=-1;
                     return false;
                 }
-                else if(!isdigit(time[j]))
+
+            //we have to check if size is a intiger number
+            
+                int liczba = atoi(argv[i+1]);
+                if(lenHelper(liczba) != strlen(argv[i+1]))
                 {
-                    printf("Podana wielkość nie jest liczbą!");
+                    printf("Podana wielkość przy parametrze -T nie jest liczbą!");
                     errno=-1;
                     return false;
                 }
-            }
+            
             i++;
         }
+        
     }
     return true;
 }
