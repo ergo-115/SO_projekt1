@@ -34,7 +34,7 @@ int main (int argc,char *argv[])
 
 
     //otwieramy dostęp do logu systemowego, będziemy tam zapisywać informacje
-    openlog("Demon Synchronizuący Katalogi", 0, LOG_USER);
+    openlog("Demon Synchronizuący Katalogi", LOG_PID , LOG_USER);
 
     
 
@@ -48,6 +48,8 @@ int main (int argc,char *argv[])
     if (pid == -1)
     {
         errno=-1;
+        //kiedys trzeba bedzie pozamieniac częśc printf na syslog jak jest w zadaniu
+        //syslog(LOG_ERR, "Nie udało się stworzyć nowego procesu!");
         printf("Nie udało się stworzyć nowego procesu!");
         return -1;
     }
@@ -81,6 +83,8 @@ int main (int argc,char *argv[])
     /*Program nasz stał się demonem, można tutaj wykonać jego czynności, poniżej należy wykonać czynności demona... */
 
     sleep(config.timeDelay);
+
+    //closelog();
 
     return 0;
 }
