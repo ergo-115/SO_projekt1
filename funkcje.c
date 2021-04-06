@@ -88,7 +88,33 @@ int lenHelper(unsigned x) {
     if (x >= 10)         return 2;
     return 1;
 }
+//na podstawie sciezki do pliku
+//zwraca rozmiar pliku
+off_t getSize(char* path){
+    struct stat statS;
+    if(stat(path, &statS) != 0)
+        return -1;
+    
+    return statS.st_size;
+}
+//zwraca czas ostatniej modyfikacji danych w pliku
+time_t getTime(char* path) 
+{
+    struct stat statT;
+    if(stat(path, &statT) == -1)
+        exit(EXIT_FAILURE);
 
+    return statT.st_mtime;
+}
+//zwraca uprawnienia do pliku
+mode_t getPerms(char* path)
+{
+    struct stat statP;
+    if(stat(path, &statP)==-1)
+        exit(EXIT_FAILURE);
+        
+    return statP.st_mode;
+}
 
 
 
