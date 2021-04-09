@@ -116,5 +116,15 @@ mode_t getPerms(char* path)
     return statP.st_mode;
 }
 
+void defSleep(int seconds){
+	int msec = seconds * 1000;
 
+	long pause = msec * (CLOCKS_PER_SEC/1000);
+	clock_t clkNow, clkNext;
+	clkNow = clock();
+	clkNext = clkNow;
+	while((clkNow - clkNext) < pause){
+		clkNow = clock();
+	}
+}
 

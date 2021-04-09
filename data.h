@@ -15,6 +15,7 @@
 #include <linux/fs.h>
 #include <syslog.h>
 #include <time.h>
+#include <signal.h>
 
 
  typedef struct Data

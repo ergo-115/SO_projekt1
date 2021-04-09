@@ -11,7 +11,13 @@
 //-R czy odpalamy rekurencyjnie, czyli czy patrzymy też w podkatalogi
 //-S size (gdzie size to próg dzielący male pliki od dużych)
 
-
+bool sigbreak;
+void sig_handler(int signo){
+	if(signo == SIGUSR1){
+		sigbreak = true;
+		printf("sygnał\n");
+	}
+}
 
 int main (int argc,char *argv[])
 {
@@ -82,7 +88,29 @@ int main (int argc,char *argv[])
 
     /*Program nasz stał się demonem, można tutaj wykonać jego czynności, poniżej należy wykonać czynności demona... */
 
-    sleep(config.timeDelay);
+    //sleep(config.timeDelay);
+    
+    //--------------------------------
+    if(signal(SIGUSR1, sig_handler) == SIG_ERR){
+	fprintf(stderr, "błąd sigusr1\n");
+	exit(EXIT_FAILURE);
+	}
+    //do fora czas w sekundach, np i < 10 to 10 sekund
+    for(i = 0; i < (config.timeDelay/1000); i++){
+	defSleep(1);
+	if(sigbreak == true)
+		break;
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
     //closelog();
 
