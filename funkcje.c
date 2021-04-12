@@ -1,4 +1,15 @@
 #include "data.h"
+//wszystkie ponizej potrzebne do kopiowania
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <syslog.h>
+#include <assert.h>
+#include <stdbool.h>
+#include <sys/mman.h>
 
 //czy sciezka podana do target jest podkatalogiem source (czyli np.
 // src = /home/....../projekt/abc i target = /home/...../projekt zwroci 1(true), inaczej 0
@@ -126,5 +137,58 @@ void defSleep(int seconds){
 	while((clkNow - clkNext) < pause){
 		clkNow = clock();
 	}
+void create_file(char* p) //tworzy plik docelowy
+{
+	mode_t rights = S_IRUSR | S_IWUSR | S_IRGRP |S_IWGRP | S_IROTH;
+	//prawa: czytanie i pisanie dla wlasciciela, czytanie i pisanie dla grupy, czytanie dla pozostalych
+	int f = open(p, O_WRONLY | O_EXCL | O_CREAT, rights); 
+	if(f== -1) exit(EXIT_FAILURE);
+	close(f);
+}
+
+ssize_t write_file(int fd, const void* buffer, size_t scale)
+{
+	size_t left = scale;
+        while(left > 0){
+                size_t written = write(fd,buffer,scale);
+                if(written == -1) return -1;
+                else left -=written;
+        }
+        assert (left == 0);
+        return scale; //zwraca zapisany rozmiar
+}
+
+void copy_file(char* source, char* dest, bool pom) //bool: jesli duzy to  mmap ; glowna funkcja kopiowania
+{
+   int sf = open(source, O_RDONLY); //otwieranie pliku
+   int df;
+   if(pom)
+   {
+	size_t fsize = lseek(sf,0,SEEK_END);
+	char *src=mmap(NULL,fsize, PROT_READ,MAP_PRIVATE,sf,0);
+	df = open(dest, O_RDWR | O_CREAT,0666); //plik docelowy, prawa
+	ftruncate(df,fsize);
+	char *cel=mmap(NULL,fsize, PROT_READ | PROT_WRITE,MAP_SHARED,df,0);
+	memcpy(cel,src,fsize);
+	munmap(src,fsize);
+	munmap(cel,fsize);
+   }
+   else
+   {
+	unsigned char buffer[15];
+	size_t off = 0;
+	size_t b_read;
+	create_file(dest); //docelowy
+	df = open(dest, O_WRONLY);
+	do{
+		b_read = read(sf,buffer,sizeof(buffer));
+		write_file(df,buffer,b_read); //czyta wartosc pliku
+		off += b_read;
+	}while(b_read==sizeof(buffer));
+   }
+	close(sf);
+	close(df);
+}	
+
 }
 
