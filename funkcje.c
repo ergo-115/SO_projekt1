@@ -137,6 +137,7 @@ void defSleep(int seconds){
 	while((clkNow - clkNext) < pause){
 		clkNow = clock();
 	}
+}
 void create_file(char* p) //tworzy plik docelowy
 {
 	mode_t rights = S_IRUSR | S_IWUSR | S_IRGRP |S_IWGRP | S_IROTH;
@@ -190,5 +191,5 @@ void copy_file(char* source, char* dest, bool pom) //bool: jesli duzy to  mmap ;
 	close(df);
 }	
 
-}
+
 

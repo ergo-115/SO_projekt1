@@ -15,19 +15,19 @@
 //-S size (gdzie size to próg dzielący male pliki od dużych)
 
 bool sigbreak;
-void sig_handler(int signo){
-	if(signo == SIGUSR1){
+void sig_handler(int signo) {
+    if(signo == SIGUSR1) {
         time_t t = time(NULL);
         struct tm *tm = localtime(&t);
         syslog(LOG_INFO,"Obudzenie sie demona, data: %s",asctime(tm));
-		sigbreak = true;
-	}
+        sigbreak = true;
+    }
 }
 
 int main (int argc,char *argv[])
 {
 
-    
+
     //config zawiera wszystko co jest potrzebne w pracy Demona(ścieżka docelowa, źródłowa, czas czekania)
     //czy praca rekurencyjna itd.
     //walidacjaDane zwróci nam obiekt jak przejdzie, z wartością walidacja równa true
@@ -39,15 +39,14 @@ int main (int argc,char *argv[])
 
     if(config.walidacja==false)
     {
-        return -1;
+        exit(EXIT_FAILURE);
     }
 
 
 
     //otwieramy dostęp do logu systemowego, będziemy tam zapisywać informacje
-    openlog("Demon Synchronizuący Katalogi", LOG_PID , LOG_USER);
+    openlog("Demon Synchronizuący Katalogi", LOG_PID, LOG_USER);
 
-    syslog(LOG_NOTICE,"Demon zaczął swoją pracę");
 
     //zamieniamy program w demona
 
@@ -62,7 +61,8 @@ int main (int argc,char *argv[])
         //kiedys trzeba bedzie pozamieniac częśc printf na syslog jak jest w zadaniu
         //syslog(LOG_ERR, "Nie udało się stworzyć nowego procesu!");
         printf("Nie udało się stworzyć nowego procesu!");
-        return -1;
+        closelog();
+        exit(EXIT_FAILURE);
     }
     else if (pid != 0)
         exit (EXIT_SUCCESS);
@@ -72,14 +72,16 @@ int main (int argc,char *argv[])
     {
         errno=-1;
         printf("Nie udało się stworzyć nowej sesji i/lub grupy procesów!");
-        return -1;
+        closelog();
+        exit(EXIT_FAILURE);
     }
     /* ustaw katalog roboczy na katalog główny */
     if (chdir ("/") == -1)
     {
         errno=-1;
         printf("Nie udało się ustawić katalogu roboczego na katalog główny!");
-        return -1;
+        closelog();
+        exit(EXIT_FAILURE);
     }
     /* zamknij wszystkie pliki otwarte - użycie opcji NR_OPEN to przesada, lecz działa
     te nr_open to maxymalna liczba przechowywanych deskryptorów plików, to znaczy 1024*1024 */
@@ -94,35 +96,36 @@ int main (int argc,char *argv[])
     /*Program nasz stał się demonem, można tutaj wykonać jego czynności, poniżej należy wykonać czynności demona... */
 
     //sleep(config.timeDelay);
-    
+
     //--------------------------------
-    if(signal(SIGUSR1, sig_handler) == SIG_ERR){
-	fprintf(stderr, "błąd sigusr1\n");
-	exit(EXIT_FAILURE);
-	}
+    if(signal(SIGUSR1, sig_handler) == SIG_ERR) {
+        fprintf(stderr, "błąd sigusr1\n");
+        exit(EXIT_FAILURE);
+        closelog();
+    }
     //do fora czas w sekundach, np i < 10 to 10 sekund
     sigbreak = false;
-    for(i = 0; i < (config.timeDelay/1000); i++){
-	defSleep(1);
-	if(sigbreak == true)
-		break;
+    for(i = 0; i < (config.timeDelay/1000); i++) {
+        defSleep(1);
+        if(sigbreak == true)
+            break;
     }
 
     time_t t = time(NULL);
     struct tm *tm = localtime(&t);
     syslog(LOG_INFO,"Demon rozpoczal swoja prace, data: %s",asctime(tm));
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+
+
+
+
+
+
+
+
+
+
 
     closelog();
 
-    return 0;
+    exit (EXIT_SUCCESS);
 }
