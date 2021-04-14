@@ -235,7 +235,7 @@ int synchro(Data config){
 				newConfig = config;
 				newConfig.sourcePath = pathSource;
 				newConfig.destinationPath = pathDest;
-				if(lstat(pathDest, &destStat)==0){ //folder nie istnieje w dest
+				if(lstat(pathDest, &destStat)!=0){ //folder nie istnieje w dest
 					mkdir(pathDest, perms); //nwm czy tak moze byc
 				}
 				synchro(newConfig);
@@ -250,10 +250,10 @@ int synchro(Data config){
 				bLargeFile = true;
 
             if(lstat(pathDest, &destStat)!=0){ //plik nie istnieje w dest
-                    copy_file(pathSource, pathDest, bLargeFile);
+                copy_file(pathSource, pathDest, bLargeFile);
             }
             else if(getTime(pathSource)>getTime(pathDest)){ //plik istnieje, ale data modyfikacji jest starsza
-					copy_file(pathSource, pathDest, bLargeFile);
+				copy_file(pathSource, pathDest, bLargeFile);
             }
             
 
