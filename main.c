@@ -1,6 +1,9 @@
 #include "data.h"
 #include "funkcje.h"
 #include "init.h"
+#include <syslog.h>
+#include <time.h>
+
 //#include "data.h"
 //struct Data config;
 
@@ -14,8 +17,10 @@
 bool sigbreak;
 void sig_handler(int signo){
 	if(signo == SIGUSR1){
+        time_t t = time(NULL);
+        struct tm *tm = localtime(&t);
+        syslog(LOG_INFO,"Obudzenie sie demona, data: %s",asctime(tm));
 		sigbreak = true;
-		printf("sygnał\n");
 	}
 }
 
@@ -42,7 +47,7 @@ int main (int argc,char *argv[])
     //otwieramy dostęp do logu systemowego, będziemy tam zapisywać informacje
     openlog("Demon Synchronizuący Katalogi", LOG_PID , LOG_USER);
 
-    
+    syslog(LOG_NOTICE,"Demon zaczął swoją pracę");
 
     //zamieniamy program w demona
 
@@ -102,6 +107,10 @@ int main (int argc,char *argv[])
 	if(sigbreak == true)
 		break;
     }
+
+    time_t t = time(NULL);
+    struct tm *tm = localtime(&t);
+    syslog(LOG_INFO,"Demon rozpoczal swoja prace, data: %s",asctime(tm));
     
     
     
@@ -113,7 +122,7 @@ int main (int argc,char *argv[])
     
     
 
-    //closelog();
+    closelog();
 
     return 0;
 }
