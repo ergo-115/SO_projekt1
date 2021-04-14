@@ -1,15 +1,6 @@
 #include "data.h"
 //wszystkie ponizej potrzebne do kopiowania
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/stat.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <syslog.h>
-#include <assert.h>
-#include <stdbool.h>
-#include <sys/mman.h>
+
 
 //czy sciezka podana do target jest podkatalogiem source (czyli np.
 // src = /home/....../projekt/abc i target = /home/...../projekt zwroci 1(true), inaczej 0
@@ -191,5 +182,84 @@ void copy_file(char* source, char* dest, bool pom) //bool: jesli duzy to  mmap ;
 	close(df);
 }	
 
+int synchro(Data config){ 
 
+    DIR *sourceFolder;
+	//DIR *destFolder; 
+    struct dirent* dirent; //directory entry 
+    dirent = malloc(sizeof(struct dirent));
 
+    int fileOrDir=0; 
+
+    mode_t perms;
+	bool bLargeFile = false;
+
+    struct stat srcStat;
+    struct stat destStat;
+
+    char pathSource[strlen(config.sourcePath)+20]; 
+    char pathDest[strlen(config.destinationPath)+20];
+
+    sourceFolder = opendir(config.sourcePath); 
+
+    //destFolder = opendir(config.destinationPath); 
+
+    while((dirent=readdir(sourceFolder)) != NULL){ //NULL oznacza koniec plików w folderze lub błąd 
+
+        if( (strcmp(dirent->d_name, ".")==0) || (strcmp(dirent->d_name,"..")==0) ) continue; 
+
+        strcpy(pathSource, config.sourcePath); 
+        strcat(pathSource,"/"); 
+        strcat(pathSource, dirent->d_name); 
+
+        strcpy(pathDest, config.destinationPath); 
+        strcat(pathDest, "/"); 
+        strcat(pathDest, dirent->d_name);
+
+        stat(pathSource, &srcStat);
+        stat(pathDest, &destStat); 
+
+        perms = getPerms(pathSource); 
+
+        if (S_ISDIR(perms)) 
+            fileOrDir = 0; //entry jest folderem 
+        else if(S_ISREG(perms)) 
+            fileOrDir = 1; //entry jest plikiem 
+        else 
+        fileOrDir = -1; 
+
+        if(fileOrDir==0){  //jesli sciezka wskazuje folder 
+
+            if(config.RecursiveMode==true){ 
+				Data newConfig;
+				newConfig = config;
+				newConfig.sourcePath = pathSource;
+				newConfig.destinationPath = pathDest;
+				if(lstat(pathDest, &destStat)==0){ //folder nie istnieje w dest
+					mkdir(pathDest, perms); //nwm czy tak moze byc
+				}
+				synchro(newConfig);
+            } 
+            break; 
+
+        } 
+        else if (fileOrDir == 1){  //jesli sciezka wskazuje zwykly plik 
+            if(srcStat.st_size<config.size)
+				bLargeFile = false;
+			else
+				bLargeFile = true;
+
+            if(lstat(pathDest, &destStat)!=0){ //plik nie istnieje w dest
+                    copy_file(pathSource, pathDest, bLargeFile);
+            }
+            else if(getTime(pathSource)>getTime(pathDest)){ //plik istnieje, ale data modyfikacji jest starsza
+					copy_file(pathSource, pathDest, bLargeFile);
+            }
+            
+
+        } 
+    }
+
+ 
+
+} 

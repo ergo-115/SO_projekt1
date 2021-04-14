@@ -16,6 +16,9 @@
 #include <syslog.h>
 #include <time.h>
 #include <signal.h>
+#include <dirent.h>
+#include <assert.h>
+#include <sys/mman.h>
 
 
  typedef struct Data
@@ -26,6 +29,6 @@
     char *sourcePath;
     char *destinationPath;
     int size;
-} data;
+} Data;
 
 #endif
