@@ -61,17 +61,28 @@ int main (int argc,char *argv[])
         //kiedys trzeba bedzie pozamieniac częśc printf na syslog jak jest w zadaniu
         //syslog(LOG_ERR, "Nie udało się stworzyć nowego procesu!");
         printf("Nie udało się stworzyć nowego procesu!");
+        time_t t = time(NULL);
+        struct tm *tm = localtime(&t);
+        syslog(LOG_INFO,"Nie udało się stworzyć nowego procesu demona, czas: %s",asctime(tm));
         closelog();
         exit(EXIT_FAILURE);
     }
     else if (pid != 0)
+    {
+        time_t t = time(NULL);
+        struct tm *tm = localtime(&t);
+        syslog(LOG_INFO,"Udalo sie stworzyc nowy proces dla demona, czas: %s",asctime(tm));
         exit (EXIT_SUCCESS);
+    }
 
     /* stwórz nową sesję i grupę procesów */
     if (setsid ( ) == -1)
     {
         errno=-1;
         printf("Nie udało się stworzyć nowej sesji i/lub grupy procesów!");
+        time_t t = time(NULL);
+        struct tm *tm = localtime(&t);
+        syslog(LOG_INFO,"Nie udało się stworzyć nowej sesji i/lub grupy procesów, czas: %s",asctime(tm));
         closelog();
         exit(EXIT_FAILURE);
     }
@@ -80,6 +91,9 @@ int main (int argc,char *argv[])
     {
         errno=-1;
         printf("Nie udało się ustawić katalogu roboczego na katalog główny!");
+        time_t t = time(NULL);
+        struct tm *tm = localtime(&t);
+        syslog(LOG_INFO,"Nie udało się ustawić katalogu roboczego na katalog główny, czas: %s",asctime(tm));
         closelog();
         exit(EXIT_FAILURE);
     }
@@ -100,6 +114,9 @@ int main (int argc,char *argv[])
     //--------------------------------
     if(signal(SIGUSR1, sig_handler) == SIG_ERR) {
         fprintf(stderr, "błąd sigusr1\n");
+        time_t t = time(NULL);
+        struct tm *tm = localtime(&t);
+        syslog(LOG_INFO,"Nie udało się obsłużyć SIGUSR1, czas: %s",asctime(tm));
         exit(EXIT_FAILURE);
         closelog();
     }
@@ -115,15 +132,12 @@ int main (int argc,char *argv[])
     struct tm *tm = localtime(&t);
     syslog(LOG_INFO,"Demon rozpoczal swoja prace, data: %s",asctime(tm));
 
+    synchro(config);
 
+    t = time(NULL);
+    tm = localtime(&t);
 
-
-
-
-
-
-
-
+    syslog(LOG_INFO,"Demon zakonczyl swoja prace!, data: %s",asctime(tm));
 
     closelog();
 
