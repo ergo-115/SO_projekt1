@@ -58,6 +58,9 @@ touch zzz/bbb/z.txt
 chmod 111 zzz/bbb/z.txt #do skasowania
 touch -d "30 hours ago" zzz/bbb/aac/gg.txt #do nadpisania, data modyfikacji inna
 echo "I’m reading a book about anti-gravity. It’s impossible to put down." >> zzz/bbb/ccc/aaa/gz.sh #do nadpisania, rozmiar inny
+mkdir -p aaa/gk #do skopiowania
+mkdir -p aaa/gkk #do skopiowania
+touch aaa/gkk/qw.txt #do skopiowania
 
 echo "Utworzono strukture katalogow"
 exit 0
