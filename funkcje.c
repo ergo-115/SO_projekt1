@@ -156,6 +156,9 @@ void copy_file(char* source, char* dest, bool pom) //bool: jesli duzy to  mmap ;
    int df;
    if(pom)
    {
+	time_t t = time(NULL);
+    struct tm *tm = localtime(&t);
+	syslog(LOG_INFO,"Synchronizacja pliku o nazwie: %s metodą mmap, data: %s",source,asctime(tm));		
 	size_t fsize = lseek(sf,0,SEEK_END);
 	char *src=mmap(NULL,fsize, PROT_READ,MAP_PRIVATE,sf,0);
 	df = open(dest, O_RDWR | O_CREAT,0666); //plik docelowy, prawa
@@ -167,11 +170,14 @@ void copy_file(char* source, char* dest, bool pom) //bool: jesli duzy to  mmap ;
    }
    else
    {
+	time_t t = time(NULL);
+    struct tm *tm = localtime(&t);
+	syslog(LOG_INFO,"Synchronizacja pliku o nazwie: %s metodą read/write, data: %s",source,asctime(tm));
 	unsigned char buffer[15];
 	size_t off = 0;
 	size_t b_read;
 	create_file(dest); //docelowy
-	df = open(dest, O_WRONLY);
+	df = open(dest, O_RDWR | O_CREAT,0666);
 	do{
 		b_read = read(sf,buffer,sizeof(buffer));
 		write_file(df,buffer,b_read); //czyta wartosc pliku
@@ -201,7 +207,6 @@ int synchro(Data config){
     char pathDest[strlen(config.destinationPath)+20];
 
     sourceFolder = opendir(config.sourcePath); 
-
     //destFolder = opendir(config.destinationPath); 
 
     while((dirent=readdir(sourceFolder)) != NULL){ //NULL oznacza koniec plików w folderze lub błąd 
@@ -238,9 +243,12 @@ int synchro(Data config){
 				if(lstat(pathDest, &destStat)!=0){ //folder nie istnieje w dest
 					mkdir(pathDest, perms); //nwm czy tak moze byc
 				}
+				time_t t = time(NULL);
+    			struct tm *tm = localtime(&t);
+				syslog(LOG_INFO,"Synchronizacja podkatalogu o nazwie: %s, data: %s",newConfig.sourcePath,asctime(tm));
 				synchro(newConfig);
             } 
-            break; 
+            continue; 
 
         } 
         else if (fileOrDir == 1){  //jesli sciezka wskazuje zwykly plik 
@@ -250,6 +258,7 @@ int synchro(Data config){
 				bLargeFile = true;
 
             if(lstat(pathDest, &destStat)!=0){ //plik nie istnieje w dest
+				
                 copy_file(pathSource, pathDest, bLargeFile);
             }
             else if(getTime(pathSource)>getTime(pathDest)){ //plik istnieje, ale data modyfikacji jest starsza
@@ -257,8 +266,11 @@ int synchro(Data config){
             }
             
 
-        } 
+        }
+
     }
+	return 0; 
+
 
  
 

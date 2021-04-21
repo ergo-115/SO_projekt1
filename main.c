@@ -24,6 +24,7 @@ void sig_handler(int signo) {
     }
 }
 
+
 int main (int argc,char *argv[])
 {
 
@@ -132,8 +133,12 @@ int main (int argc,char *argv[])
     struct tm *tm = localtime(&t);
     syslog(LOG_INFO,"Demon rozpoczal swoja prace, data: %s",asctime(tm));
 
-    synchro(config);
-
+    if(synchro(config)==0)
+    {
+    time_t t = time(NULL);
+    struct tm *tm = localtime(&t);
+    syslog(LOG_INFO,"Sukces sunchronizacji, data: %s",asctime(tm));
+    }
     t = time(NULL);
     tm = localtime(&t);
 
