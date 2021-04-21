@@ -1,0 +1,14 @@
+﻿Temat projektu: 
+	Demon synchronizujący dwa podkatalogi
+
+Skład zespołu:
+	Przemysław Klejno
+	Urszula Gilewska
+	Cezary Hodun
+	Eryk Godleś
+	
+Opis:
+#todo <np jakie parametry przyjmowane, opis wybranych funkcji? itd>
+
+Sposób użycia:
+./synchDemon #todo
