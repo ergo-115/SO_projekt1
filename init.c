@@ -9,7 +9,7 @@ struct Data WalidacjaDane(int argc,char *argv[])
     data.sourcePath = argv[1];
     data.destinationPath = argv[2];
     data.size=1024*1024;
-    data.timeDelay=5000;
+    data.timeDelay=1000*60*5;
     data.RecursiveMode=false;
     data.walidacja = true;
     if(argc<3)
