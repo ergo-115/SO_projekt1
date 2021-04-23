@@ -137,7 +137,7 @@ int main (int argc,char *argv[])
     {
     time_t t = time(NULL);
     struct tm *tm = localtime(&t);
-    syslog(LOG_INFO,"Sukces sunchronizacji, data: %s",asctime(tm));
+    syslog(LOG_INFO,"Sukces synchronizacji, data: %s",asctime(tm));
     }
     t = time(NULL);
     tm = localtime(&t);

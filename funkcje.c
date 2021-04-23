@@ -191,7 +191,7 @@ void copy_file(char* source, char* dest, bool pom) //bool: jesli duzy to  mmap ;
 int synchro(Data config){ 
 
     DIR *sourceFolder;
-	//DIR *destFolder; 
+	DIR *destFolder; 
     struct dirent* dirent; //directory entry 
     dirent = malloc(sizeof(struct dirent));
 
@@ -206,72 +206,126 @@ int synchro(Data config){
     char pathSource[strlen(config.sourcePath)+20]; 
     char pathDest[strlen(config.destinationPath)+20];
 
-    sourceFolder = opendir(config.sourcePath); 
-    //destFolder = opendir(config.destinationPath); 
+	time_t t = time(NULL);
+	struct tm *tm = localtime(&t);
 
-    while((dirent=readdir(sourceFolder)) != NULL){ //NULL oznacza koniec plików w folderze lub błąd 
+    if(sourceFolder = opendir(config.sourcePath)){ //kopiowanie
+		while((dirent=readdir(sourceFolder)) != NULL){ //NULL oznacza koniec plików w folderze lub błąd 
 
-        if( (strcmp(dirent->d_name, ".")==0) || (strcmp(dirent->d_name,"..")==0) ) continue; 
+			if( (strcmp(dirent->d_name, ".")==0) || (strcmp(dirent->d_name,"..")==0) ) continue; 
 
-        strcpy(pathSource, config.sourcePath); 
-        strcat(pathSource,"/"); 
-        strcat(pathSource, dirent->d_name); 
+			strcpy(pathSource, config.sourcePath); 
+			strcat(pathSource,"/"); 
+			strcat(pathSource, dirent->d_name); 
 
-        strcpy(pathDest, config.destinationPath); 
-        strcat(pathDest, "/"); 
-        strcat(pathDest, dirent->d_name);
+			strcpy(pathDest, config.destinationPath); 
+			strcat(pathDest, "/"); 
+			strcat(pathDest, dirent->d_name);
 
-        stat(pathSource, &srcStat);
-        stat(pathDest, &destStat); 
+			stat(pathSource, &srcStat);
+			stat(pathDest, &destStat); 
 
-        perms = getPerms(pathSource); 
+			perms = getPerms(pathSource); 
 
-        if (S_ISDIR(perms)) 
-            fileOrDir = 0; //entry jest folderem 
-        else if(S_ISREG(perms)) 
-            fileOrDir = 1; //entry jest plikiem 
-        else 
-        fileOrDir = -1; 
+			if (S_ISDIR(perms)) 
+				fileOrDir = 0; //entry jest folderem 
+			else if(S_ISREG(perms)) 
+				fileOrDir = 1; //entry jest plikiem 
+			else 
+			fileOrDir = -1; 
 
-        if(fileOrDir==0){  //jesli sciezka wskazuje folder 
+			if(fileOrDir==0){  //jesli sciezka wskazuje folder 
 
-            if(config.RecursiveMode==true){ 
+				if(config.RecursiveMode==true){ 
+					Data newConfig;
+					newConfig = config;
+					newConfig.sourcePath = pathSource;
+					newConfig.destinationPath = pathDest;
+					if(lstat(pathDest, &destStat)!=0){ //folder nie istnieje w dest
+						mkdir(pathDest, perms); //nwm czy tak moze byc
+					}
+					tm = localtime(&t);
+					syslog(LOG_INFO,"Synchronizacja podkatalogu o nazwie: %s, data: %s",newConfig.sourcePath,asctime(tm)); //dirent->d_name
+					synchro(newConfig);
+				} 
+				continue; 
+			} 
+			else if (fileOrDir == 1){  //jesli sciezka wskazuje zwykly plik 
+				if(srcStat.st_size<config.size)
+					bLargeFile = false;
+				else
+					bLargeFile = true;
+
+            	if(lstat(pathDest, &destStat)!=0){ //plik nie istnieje w dest
+				
+               		copy_file(pathSource, pathDest, bLargeFile);
+            	}
+            	else if(getTime(pathSource)>getTime(pathDest)){ //plik istnieje, ale data modyfikacji jest starsza
+					copy_file(pathSource, pathDest, bLargeFile);
+            	}
+        	}
+		}
+		closedir(sourceFolder);
+	}
+	
+	if(destFolder = opendir(config.destinationPath)){ //usuwanie
+		while((dirent=readdir(destFolder)) != NULL){ //NULL oznacza koniec plików w folderze lub błąd 
+        	if( (strcmp(dirent->d_name, ".")==0) || (strcmp(dirent->d_name,"..")==0) ) continue; 
+
+        	strcpy(pathSource, config.sourcePath); 
+        	strcat(pathSource,"/"); 
+        	strcat(pathSource, dirent->d_name); 
+
+        	strcpy(pathDest, config.destinationPath); 
+        	strcat(pathDest, "/"); 
+        	strcat(pathDest, dirent->d_name);
+
+        	stat(pathSource, &srcStat);
+        	stat(pathDest, &destStat); 
+
+       		perms = getPerms(pathDest); 
+
+        	if (S_ISDIR(perms)) 
+            	fileOrDir = 0; //entry jest folderem 
+        	else if(S_ISREG(perms)) 
+            	fileOrDir = 1; //entry jest plikiem 
+        	else 
+        		fileOrDir = -1; 
+
+        	if(fileOrDir==0){  //jesli sciezka wskazuje folder 
 				Data newConfig;
 				newConfig = config;
 				newConfig.sourcePath = pathSource;
 				newConfig.destinationPath = pathDest;
-				if(lstat(pathDest, &destStat)!=0){ //folder nie istnieje w dest
-					mkdir(pathDest, perms); //nwm czy tak moze byc
+				if(lstat(pathSource, &srcStat)!=0){ //folderu nie ma w source, wiec go usuwam z jego plikami
+					tm = localtime(&t);
+					syslog(LOG_INFO,"Podkatalog nie znajduje się w folerze zrodlowym. Usuwanie podkatalogu: %s, data: %s",pathDest,asctime(tm)); //dirent->d_name
+					synchro(newConfig);
+					rmdir(pathDest); // usuwanie folderu pathDest
 				}
-				time_t t = time(NULL);
-    			struct tm *tm = localtime(&t);
-				syslog(LOG_INFO,"Synchronizacja podkatalogu o nazwie: %s, data: %s",newConfig.sourcePath,asctime(tm));
-				synchro(newConfig);
-            } 
-            continue; 
-
-        } 
-        else if (fileOrDir == 1){  //jesli sciezka wskazuje zwykly plik 
-            if(srcStat.st_size<config.size)
-				bLargeFile = false;
-			else
-				bLargeFile = true;
-
-            if(lstat(pathDest, &destStat)!=0){ //plik nie istnieje w dest
-				
-                copy_file(pathSource, pathDest, bLargeFile);
-            }
-            else if(getTime(pathSource)>getTime(pathDest)){ //plik istnieje, ale data modyfikacji jest starsza
-				copy_file(pathSource, pathDest, bLargeFile);
-            }
-            
-
-        }
-
-    }
+				else
+				if(config.RecursiveMode==true){ 
+					synchro(newConfig);
+				} 
+            	continue; 
+        	} 
+			else if (fileOrDir == 1){  //jesli sciezka wskazuje zwykly plik 				
+				if(lstat(pathSource, &srcStat)!=0){
+					tm = localtime(&t);
+					syslog(LOG_INFO,"Plik nie znajduje się w folerze zrodlowym. Usuwanie pliku: %s, data: %s",pathDest,asctime(tm)); //dirent->d_name
+						
+					if(remove(pathDest)==0){
+						tm = localtime(&t);
+						syslog(LOG_INFO,"Usunieto plik: %s, data: %s",dirent->d_name,asctime(tm)); //dirent->d_name
+					}
+					else{
+						tm = localtime(&t);
+						syslog(LOG_INFO,"Nie usunieto pliku: %s, data: %s",dirent->d_name,asctime(tm)); //dirent->d_name
+					}
+				}
+			}
+    	}
+		closedir(destFolder);
+	}
 	return 0; 
-
-
- 
-
 } 

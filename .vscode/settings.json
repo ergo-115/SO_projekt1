@@ -1,6 +1,7 @@
 {
     "files.associations": {
         "fs.h": "c",
-        "inicjalizacja.h": "c"
+        "inicjalizacja.h": "c",
+        "stdlib.h": "c"
     }
 }
