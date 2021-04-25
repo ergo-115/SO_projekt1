@@ -58,7 +58,7 @@ struct Data WalidacjaDane(int argc,char *argv[])
             //0 na początku to nie liczba
                 if(argv[i][0] == '0')
                 {
-                    printf("Podana wielkość przy parametrze -S nie jest liczbą!\n");
+                    printf("Podana wielkość przy parametrze -S nie jest poprawną liczbą!\n");
                     errno=-1;
                     data.walidacja = false;
                     return data;
@@ -69,7 +69,7 @@ struct Data WalidacjaDane(int argc,char *argv[])
                 int liczba = atoi(argv[i+1]);
                 if(lenHelper(liczba) != strlen(argv[i+1]))
                 {
-                    printf("Podana wielkość przy parametrze -S nie jest liczbą!\n");
+                    printf("Podana wielkość przy parametrze -S nie jest poprawną liczbą!\n");
                     errno=-1;
                     data.walidacja = false;
                     return data;
@@ -97,7 +97,7 @@ struct Data WalidacjaDane(int argc,char *argv[])
             //0 na początku to nie liczba
                 if(argv[i][0] == '0')
                 {
-                    printf("Podana wielkość przy parametrze -T nie jest liczbą!\n");
+                    printf("Podana wielkość przy parametrze -T nie jest poprawną liczbą!\n");
                     errno=-1;
                     data.walidacja = false;
                     return data;
@@ -108,7 +108,7 @@ struct Data WalidacjaDane(int argc,char *argv[])
                 int liczba = atoi(argv[i+1]);
                 if(lenHelper(liczba) != strlen(argv[i+1]))
                 {
-                    printf("Podana wielkość przy parametrze -T nie jest liczbą!\n");
+                    printf("Podana wielkość przy parametrze -T nie jest poprawną liczbą!\n");
                     errno=-1;
                     data.walidacja = false;
                     return data;
