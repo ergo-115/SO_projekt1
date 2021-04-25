@@ -122,26 +122,34 @@ int main (int argc,char *argv[])
         closelog();
     }
     //do fora czas w sekundach, np i < 10 to 10 sekund
-    sigbreak = false;
-    for(i = 0; i < (config.timeDelay); i++) {
-        defSleep(1);
-        if(sigbreak == true)
-            break;
-    }
-
-    time_t t = time(NULL);
-    struct tm *tm = localtime(&t);
-    syslog(LOG_INFO,"Demon rozpoczal swoja prace, data: %s",asctime(tm));
-
-    if(synchro(config)==0)
+    time_t t;
+    struct tm *tm;
+    while(1)
     {
-    time_t t = time(NULL);
-    struct tm *tm = localtime(&t);
-    syslog(LOG_INFO,"Sukces synchronizacji, data: %s",asctime(tm));
+        sigbreak = false;
+        for(i = 0; i < (config.timeDelay); i++) 
+            {
+            defSleep(1);
+            if(sigbreak == true)
+                break;
+            }
+        t = time(NULL);
+        tm = localtime(&t);
+        syslog(LOG_INFO,"Demon rozpoczal swoja prace, data: %s",asctime(tm));
+
+        if(synchro(config)==0)
+            {
+            t = time(NULL);
+            tm = localtime(&t);
+            syslog(LOG_INFO,"Sukces synchronizacji, data: %s",asctime(tm));
+            }
+        
     }
+    
+
+    
     t = time(NULL);
     tm = localtime(&t);
-
     syslog(LOG_INFO,"Demon zakonczyl swoja prace!, data: %s",asctime(tm));
 
     closelog();

@@ -244,6 +244,7 @@ int synchro(Data config){
 					if(lstat(pathDest, &destStat)!=0){ //folder nie istnieje w dest
 						mkdir(pathDest, perms); //nwm czy tak moze byc
 					}
+					t = time(NULL);
 					tm = localtime(&t);
 					syslog(LOG_INFO,"Synchronizacja podkatalogu o nazwie: %s, data: %s",newConfig.sourcePath,asctime(tm)); //dirent->d_name
 					synchro(newConfig);
@@ -298,6 +299,7 @@ int synchro(Data config){
 				newConfig.sourcePath = pathSource;
 				newConfig.destinationPath = pathDest;
 				if(lstat(pathSource, &srcStat)!=0){ //folderu nie ma w source, wiec go usuwam z jego plikami
+					t = time(NULL);
 					tm = localtime(&t);
 					syslog(LOG_INFO,"Podkatalog nie znajduje się w folerze zrodlowym. Usuwanie podkatalogu: %s, data: %s",pathDest,asctime(tm)); //dirent->d_name
 					synchro(newConfig);
@@ -311,14 +313,17 @@ int synchro(Data config){
         	} 
 			else if (fileOrDir == 1){  //jesli sciezka wskazuje zwykly plik 				
 				if(lstat(pathSource, &srcStat)!=0){
+					t = time(NULL);
 					tm = localtime(&t);
 					syslog(LOG_INFO,"Plik nie znajduje się w folerze zrodlowym. Usuwanie pliku: %s, data: %s",pathDest,asctime(tm)); //dirent->d_name
 						
 					if(remove(pathDest)==0){
+						t = time(NULL);
 						tm = localtime(&t);
 						syslog(LOG_INFO,"Usunieto plik: %s, data: %s",dirent->d_name,asctime(tm)); //dirent->d_name
 					}
 					else{
+						t = time(NULL);
 						tm = localtime(&t);
 						syslog(LOG_INFO,"Nie usunieto pliku: %s, data: %s",dirent->d_name,asctime(tm)); //dirent->d_name
 					}
