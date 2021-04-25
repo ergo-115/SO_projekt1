@@ -123,7 +123,7 @@ int main (int argc,char *argv[])
     }
     //do fora czas w sekundach, np i < 10 to 10 sekund
     sigbreak = false;
-    for(i = 0; i < (config.timeDelay/1000); i++) {
+    for(i = 0; i < (config.timeDelay); i++) {
         defSleep(1);
         if(sigbreak == true)
             break;
