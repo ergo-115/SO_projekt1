@@ -177,14 +177,17 @@ void copy_file(char* source, char* dest, bool pom) //bool: jesli duzy to  mmap ;
 	size_t b_read;
 	create_file(dest); //docelowy
 	df = open(dest, O_RDWR | O_CREAT,0666);
-	do{
-		b_read = read(sf,buffer,sizeof(buffer));
-		write_file(df,buffer,b_read); //czyta wartosc pliku
-		off += b_read;
-	}while(b_read==sizeof(buffer));
+	
+	while(b_read = read (sf, buffer, sizeof(buffer)))
+    {
+        write (df, buffer,b_read);
+    }
+
+
    }
 	close(sf);
 	close(df);
+	
 }	
 
 int synchro(Data config){ 
