@@ -128,26 +128,10 @@ void defSleep(int seconds){
 		clkNow = clock();
 	}
 }
-void create_file(char* p) //tworzy plik docelowy
-{
-	mode_t rights = S_IRUSR | S_IWUSR | S_IRGRP |S_IWGRP | S_IROTH;
-	//prawa: czytanie i pisanie dla wlasciciela, czytanie i pisanie dla grupy, czytanie dla pozostalych
-	int f = open(p, O_WRONLY | O_EXCL | O_CREAT, rights); 
-	if(f== -1) exit(EXIT_FAILURE);
-	close(f);
-}
 
-ssize_t write_file(int fd, const void* buffer, size_t scale)
-{
-	size_t left = scale;
-        while(left > 0){
-                size_t written = write(fd,buffer,scale);
-                if(written == -1) return -1;
-                else left -=written;
-        }
-        assert (left == 0);
-        return scale; //zwraca zapisany rozmiar
-}
+
+
+
 
 void copy_file(char* source, char* dest, bool pom) //bool: jesli duzy to  mmap ; glowna funkcja kopiowania
 {
@@ -172,18 +156,18 @@ void copy_file(char* source, char* dest, bool pom) //bool: jesli duzy to  mmap ;
 	time_t t = time(NULL);
     struct tm *tm = localtime(&t);
 	syslog(LOG_INFO,"Synchronizacja pliku o nazwie: %s metodą read/write, data: %s",source,asctime(tm));
-	unsigned char buffer[15];
+	char *buffer = malloc(sizeof(char) * 15);
 	size_t off = 0;
 	size_t b_read;
-	create_file(dest); //docelowy
 	df = open(dest, O_RDWR | O_CREAT,0666);
+	
 	
 	while(b_read = read (sf, buffer, sizeof(buffer)))
     {
         write (df, buffer,b_read);
     }
-
-
+	
+	free(buffer);
    }
 	close(sf);
 	close(df);
