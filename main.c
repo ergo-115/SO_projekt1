@@ -35,10 +35,10 @@ int main (int argc,char *argv[])
     //w przeciwnym wypadku walidacja w tej strukturze ma wartość false
     //i przez to wiemy, że trzeba zwrócić
 
-    struct Data config=WalidacjaDane(argc,argv);
+    struct Data config=validateData(argc,argv);
 
 
-    if(config.walidacja==false)
+    if(config.validation==false)
     {
         exit(EXIT_FAILURE);
     }
@@ -59,8 +59,6 @@ int main (int argc,char *argv[])
     if (pid == -1)
     {
         errno=-1;
-        //kiedys trzeba bedzie pozamieniac częśc printf na syslog jak jest w zadaniu
-        //syslog(LOG_ERR, "Nie udało się stworzyć nowego procesu!");
         printf("Nie udało się stworzyć nowego procesu!");
         time_t t = time(NULL);
         struct tm *tm = localtime(&t);
@@ -87,7 +85,7 @@ int main (int argc,char *argv[])
         closelog();
         exit(EXIT_FAILURE);
     }
-    /* ustaw katalog roboczy na katalog główny */
+    /* ustawianie katalogu roboczego na katalog główny */
     if (chdir ("/") == -1)
     {
         errno=-1;
@@ -98,19 +96,19 @@ int main (int argc,char *argv[])
         closelog();
         exit(EXIT_FAILURE);
     }
-    /* zamknij wszystkie pliki otwarte - użycie opcji NR_OPEN to przesada, lecz działa
+    /* zamkniecie wszystkich plikow otwartych
     te nr_open to maxymalna liczba przechowywanych deskryptorów plików, to znaczy 1024*1024 */
     for (i = 0; i < 1024*1024; i++)
         close (i);
 
-    /* przeadresuj deskryptory plików 0, 1, 2 na /dev/null */
+    /* przeadresowanie deskryptorow plików 0, 1, 2 na /dev/null */
     open ("/dev/null", O_RDWR); /* stdin */
     dup (0); /* stdout */
     dup (0); /* stderror */
 
-    /*Program nasz stał się demonem, można tutaj wykonać jego czynności, poniżej należy wykonać czynności demona... */
+    //Program nasz stał się demonem
 
-    //sleep(config.timeDelay);
+    
 
     //--------------------------------
     if(signal(SIGUSR1, sig_handler) == SIG_ERR) {

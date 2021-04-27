@@ -19,12 +19,13 @@
 #include <dirent.h>
 #include <assert.h>
 #include <sys/mman.h>
+#include <utime.h>
 
 
  typedef struct Data
 {
     bool RecursiveMode;
-    bool walidacja;
+    bool validation;
     int timeDelay;
     char *sourcePath;
     char *destinationPath;

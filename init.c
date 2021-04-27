@@ -3,7 +3,7 @@
 
 
 /*Tutaj nastąpi walidacja danych, jeśli przejdzie zwracamy true, jeśli nie to false i kończymy działanie programu*/ 
-struct Data WalidacjaDane(int argc,char *argv[])
+struct Data validateData(int argc,char *argv[])
 {
     struct Data data;
     data.sourcePath = argv[1];
@@ -11,26 +11,26 @@ struct Data WalidacjaDane(int argc,char *argv[])
     data.size=1024*1024;
     data.timeDelay=60*5;
     data.RecursiveMode=false;
-    data.walidacja = true;
+    data.validation = true;
     if(argc<3)
     {
         errno=-1;
         printf("Zbyt mała liczba argumentów!\n");
-        data.walidacja = false;
+        data.validation = false;
         return data;
     }
     if(isDirectoryAndExists(argv[1]) == false || isDirectoryAndExists(argv[2]) == false)
     {
         errno=-1;
         printf("Podane argumenty nie pasują do żadnej ścieżki\n");
-        data.walidacja = false;
+        data.validation = false;
         return data;
     }
     if(isTargetSubDirOfSrc(argv[1],argv[2]) == true || isSourceSubDirOfTarget(argv[1],argv[2]) == true)
     {
         errno=-1;
         printf("Jeden katalog jest podkatalogiem drugiego!\n");
-        data.walidacja = false;
+        data.validation = false;
         return data;
     }
 
@@ -51,7 +51,7 @@ struct Data WalidacjaDane(int argc,char *argv[])
             {
                 printf("Podano argument -S ale nie podano rozmiaru\n");
                 errno=-1;
-                data.walidacja = false;
+                data.validation = false;
                 return data;
             }
             
@@ -60,18 +60,19 @@ struct Data WalidacjaDane(int argc,char *argv[])
                 {
                     printf("Podana wielkość przy parametrze -S nie jest poprawną liczbą!\n");
                     errno=-1;
-                    data.walidacja = false;
+                    data.validation = false;
                     return data;
                 }
 
-            //we have to check if size is a intiger number
+            
+            //sprawdzamy, czy rozmiar jest podany jako integer
             
                 int liczba = atoi(argv[i+1]);
                 if(lenHelper(liczba) != strlen(argv[i+1]))
                 {
                     printf("Podana wielkość przy parametrze -S nie jest poprawną liczbą!\n");
                     errno=-1;
-                    data.walidacja = false;
+                    data.validation = false;
                     return data;
                 }
                 data.size = liczba;
@@ -85,12 +86,12 @@ struct Data WalidacjaDane(int argc,char *argv[])
         else if(strcmp(argv[i], "-t")==0 || strcmp(argv[i] , "-T")==0)
         {
             
-//ktoś mógł nie podać rozmiaru tego, ale podał to jako parametr, przerywamy
+	//ktoś mógł nie podać rozmiaru tego, ale podał to jako parametr, przerywamy
             if(argc-1 == i)
             {
                 printf("Podano argument -T ale nie podano rozmiaru\n");
                 errno=-1;
-                data.walidacja = false;
+                data.validation = false;
                 return data;
             }
             
@@ -99,21 +100,21 @@ struct Data WalidacjaDane(int argc,char *argv[])
                 {
                     printf("Podana wielkość przy parametrze -T nie jest poprawną liczbą!\n");
                     errno=-1;
-                    data.walidacja = false;
+                    data.validation = false;
                     return data;
                 }
 
-            //we have to check if size is a intiger number
+            //sprawdzamy, czy rozmiar jest podany jako integer
             
-                int liczba = atoi(argv[i+1]);
-                if(lenHelper(liczba) != strlen(argv[i+1]))
+                int timeNumber = atoi(argv[i+1]);
+                if(lenHelper(timeNumber) != strlen(argv[i+1]))
                 {
                     printf("Podana wielkość przy parametrze -T nie jest poprawną liczbą!\n");
                     errno=-1;
-                    data.walidacja = false;
+                    data.validation = false;
                     return data;
                 }
-            data.timeDelay = liczba;
+            data.timeDelay = timeNumber;
             i++;
         }
         
