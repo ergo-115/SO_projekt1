@@ -19,7 +19,11 @@ Przyjmowane parametry:
 Sposób użycia:
 ./synchDemon <ścieżka_źródłowa> <ścieżka_docelowa> [-r/-R] [-t/-T czas_w_sekundach] [-s/-S rozmiar]
 
+Wysłanie sygnału:
+kill -SIGUSR1 <pid> 
+gdzie <pid> to numer procesu przydzielonego przy tworzeniu demona
+
 Przykłady:
-./synchDemon <ścieżka_źródłowa> <ścieżka_docelowa> -R -T 25 -S 10000
+./synchDemon <ścieżka_źródłowa> <ścieżka_docelowa> -R -T 25 -S 100
 ./synchDemon <ścieżka_źródłowa> <ścieżka_docelowa> -R
 ./synchDemon <ścieżka_źródłowa> <ścieżka_docelowa>
