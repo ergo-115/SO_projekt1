@@ -9,6 +9,8 @@ Skład zespołu:
 	
 Opis:
 #todo <opis wybranych funkcji, działanie>
+Po włączeniu, demon zaczyna synchronizować podane katalogi, zweryfikuje poprawność podanych danych, i zanotuje wszystko w logu systemowym.
+Demon reaguje na sygnał SIGUSR1, po którego podaniu zostaje wybudzony i zaczyna synchronizację.
 
 Przyjmowane parametry:
 -R / -r - wywołanie rekurencyjne
