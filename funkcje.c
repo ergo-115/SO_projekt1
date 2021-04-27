@@ -9,12 +9,7 @@
 
 //czy katalog docelowy jest podkatalogiem katalogu zrodlowego
 bool isTargetSubDirOfSrc(const char* source,const char* target){
-	//te 5 linijek raczej do wykasowania
-	//char inPathSize[4096];
-	//char outPathSize[4096];
-	//char *absPathSource, *absPathTarget;
-	//absPathSource = realpath(source, inPathSize);
-	//absPathTarget = realpath(target, outPathSize);
+
 	char* subDirSrc = strdup(source);
 	dirname(subDirSrc);
 	if(strcmp(subDirSrc, target) == 0){
@@ -26,12 +21,7 @@ bool isTargetSubDirOfSrc(const char* source,const char* target){
 }
 //czy katalog zrodlowy jest podkatalogiem docelowego
 bool isSourceSubDirOfTarget(const char* source,const char* target){
-	//to samo co wyzej
-	//char inPathSize[4096];
-	//char outPathSize[4096];
-	//char *absPathSource, *absPathTarget;
-	//absPathSource = realpath(source, inPathSize);
-	//absPathTarget = realpath(target, outPathSize);
+
 	char* subDirTarget = strdup(target);
 	dirname(subDirTarget);
 	if(strcmp(subDirTarget, source) == 0){
@@ -49,13 +39,12 @@ bool isDirectoryAndExists(const char* path){
 	//te realpath z wartoscia NULL tworzy bufor, dlatego pozniej jest free()
 	absPath = realpath(path, NULL);
 	if(!absPath){
-		//printf("sciezka nie istnieje");
 		free(absPath);
 		return false;
 	}
 
 	
-	//wywali się tzn false, jeśli będzie coś w stylu /home/...../abc/ zamiast /home/..../abc
+	//bedzie zwrocone false, jeśli będzie coś w stylu /home/...../abc/ zamiast /home/..../abc
 	if(strcmp(absPath, path) != 0) {
 		free(absPath);
 		return false;
@@ -63,8 +52,6 @@ bool isDirectoryAndExists(const char* path){
 	free(absPath);
 	
 	//sprawdzenie praw do execute, jesli brak to errno bedzie na eacces
-	//co ciekawe, dziala tylko dla folderow, i zwykle pliki automatycznie maja ustawiane errno na eacces
-	//wiec te 4 linijki "pod czy jest katalogiem" można chyba by skasować, poki co zostawiam
 	int perms = 0;
 	perms = access(path, X_OK);
 	if(errno == EACCES)
@@ -116,7 +103,7 @@ mode_t getPerms(char* path)
         
     return statP.st_mode;
 }
-
+//oczekiwanie x sekund
 void defSleep(int seconds){
 	int msec = seconds * 1000;
 
@@ -140,7 +127,7 @@ void timestampMod(char* source, char* dest){
    	chmod(dest, srcStat.st_mode);
 }
 
-
+//kopiowanie pliku
 void copy_file(char* source, char* dest, bool pom) //bool: jesli duzy to  mmap ; glowna funkcja kopiowania
 {
    int sf = open(source, O_RDONLY); //otwieranie pliku
@@ -161,11 +148,11 @@ void copy_file(char* source, char* dest, bool pom) //bool: jesli duzy to  mmap ;
    }
    else
    {
-	time_t t = time(NULL);
-    struct tm *tm = localtime(&t);
+	time_t t = time(NULL);//kopiowanie malych plikow
+    	struct tm *tm = localtime(&t);
 	syslog(LOG_INFO,"Synchronizacja pliku o nazwie: %s metodą read/write, data: %s",source,asctime(tm));
-	char *buffer = malloc(sizeof(char) * 15);
-	size_t off = 0;
+	char *buffer = malloc(sizeof(char) * 64);
+	//size_t off = 0;
 	size_t b_read;
 	df = open(dest, O_RDWR | O_CREAT,0666);
 	
@@ -183,11 +170,11 @@ void copy_file(char* source, char* dest, bool pom) //bool: jesli duzy to  mmap ;
 	close(df);
 	
 }	
-
+//główna funkcja, slużąca do synchronizacji
 int synchro(Data config){ 
 
     DIR *sourceFolder;
-	DIR *destFolder; 
+    DIR *destFolder; 
     struct dirent* dirent; //directory entry 
     dirent = malloc(sizeof(struct dirent));
 
