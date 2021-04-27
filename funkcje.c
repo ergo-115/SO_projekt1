@@ -130,7 +130,15 @@ void defSleep(int seconds){
 }
 
 
-
+void timestampMod(char* source, char* dest){
+	struct stat srcStat;
+   	stat(source, &srcStat);
+   	struct utimbuf modifyTime;
+   	modifyTime.actime = srcStat.st_atim.tv_sec;
+   	modifyTime.modtime = srcStat.st_mtim.tv_sec;
+   	utime(dest,&modifyTime);
+   	chmod(dest, srcStat.st_mode);
+}
 
 
 void copy_file(char* source, char* dest, bool pom) //bool: jesli duzy to  mmap ; glowna funkcja kopiowania
@@ -169,6 +177,8 @@ void copy_file(char* source, char* dest, bool pom) //bool: jesli duzy to  mmap ;
 	
 	free(buffer);
    }
+   	timestampMod(source, dest);
+			
 	close(sf);
 	close(df);
 	
@@ -234,6 +244,7 @@ int synchro(Data config){
 					tm = localtime(&t);
 					syslog(LOG_INFO,"Synchronizacja podkatalogu o nazwie: %s, data: %s",newConfig.sourcePath,asctime(tm)); //dirent->d_name
 					synchro(newConfig);
+					timestampMod(pathSource, pathDest);
 				} 
 				continue; 
 			} 
@@ -251,6 +262,7 @@ int synchro(Data config){
 					copy_file(pathSource, pathDest, bLargeFile);
             	}
         	}
+			
 		}
 		closedir(sourceFolder);
 	}

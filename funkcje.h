@@ -11,5 +11,5 @@ off_t getSize(char* path);
 time_t getTime(char* path);
 mode_t getPerms(char* path);
 void defSleep(int seconds);
-
+void timestampMod(char* source, char* dest);
 #endif 
