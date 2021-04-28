@@ -61,7 +61,8 @@ echo "I’m reading a book about anti-gravity. It’s impossible to put down." >
 mkdir -p aaa/gk #do skopiowania
 mkdir -p aaa/gkk #do skopiowania
 touch aaa/gkk/qw.txt #do skopiowania
-
+#ponizsza linijka sluzy do stworzenia pliku 1,1GB
+#dd if=/dev/zero of=file.txt count=1024 bs=1048576 
 echo "Utworzono strukture katalogow"
 exit 0
 fi
