@@ -70,7 +70,7 @@ int main (int argc,char *argv[])
     {
         time_t t = time(NULL);
         struct tm *tm = localtime(&t);
-        syslog(LOG_INFO,"Udalo sie stworzyc nowy proces dla demona, czas: %s",asctime(tm));
+        syslog(LOG_INFO,"Udalo sie stworzyc nowy proces dla demona, pid = %d , czas: %s", pid, asctime(tm));
         exit (EXIT_SUCCESS);
     }
 
